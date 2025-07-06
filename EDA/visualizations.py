@@ -9,7 +9,7 @@ class Visualizations:
     @staticmethod
     def load_dataset(path="data/OULADX.csv"):
         """Load dataset from a CSV file."""
-        return pd.read_csv(path)
+        return pd.read_csv(path, low_memory=False)
 
     @staticmethod
     def descriptive_stats(df):
