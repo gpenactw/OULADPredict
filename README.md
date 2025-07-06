@@ -29,8 +29,9 @@ python -m pip install -r requirements.txt
 ### Descargar datasets
 
 ```bash
-python data/downloadDatasets.py
+python data/downloadDatasets.py data/raw/
 ```
+Los CSV originales de OULAD se deben guardar en  ```data/raw```.
 
 ## Para visualizar el Notebook 
 
