@@ -25,3 +25,9 @@ Instalar dependencias:
 ```bash
 python -m pip install -r requirements.txt
 ```
+
+### Descargar datasets
+
+```bash
+python data/downloadDatasets.py
+```

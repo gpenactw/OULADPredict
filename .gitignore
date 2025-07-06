@@ -13,6 +13,6 @@ __pycache__/
 dist/
 build/
 .aider*
-data/*.csv
-data/*.zip
+data/**/*.csv
+data/**/*.zip
 .DS_Store
