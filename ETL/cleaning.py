@@ -65,14 +65,17 @@ def cleaning_data():
     StudentVle_combined.drop(columns=cols_to_drop_student_vle, inplace=True, errors='ignore')
     vle_combined.drop(columns=cols_to_drop_vle, inplace=True, errors='ignore')
 
-    # “Se eliminaron columnas con >80% de valores nulos y sin valor predictivo directo o sin correspondencia con otras tablas, para reducir ruido en el dataset.”
+    print("Se eliminaron columnas con >80% de valores nulos y sin valor predictivo directo o sin correspondencia con otras tablas, para reducir ruido en el dataset.\n")
 
     # Completar valores
     Registration_combined['date_unregistration'] = Registration_combined['date_unregistration'].fillna(9999)
     StudentInfo_combined['imd_band'] = StudentInfo_combined['imd_band'].fillna('Unknown')
-    StudentInfo_combined['age_band'] = StudentInfo_combined['age_band'].fillna(StudentInfo_combined['age_band'].mode()[0])
-    StudentInfo_combined['num_of_prev_attempts'] = StudentInfo_combined['num_of_prev_attempts'].fillna(StudentInfo_combined['num_of_prev_attempts'].median())
-    StudentInfo_combined['studied_credits'] = StudentInfo_combined['studied_credits'].fillna(StudentInfo_combined['studied_credits'].median())
+    StudentInfo_combined['age_band'] = StudentInfo_combined['age_band'].fillna(
+        StudentInfo_combined['age_band'].mode()[0])
+    StudentInfo_combined['num_of_prev_attempts'] = StudentInfo_combined['num_of_prev_attempts'].fillna(
+        StudentInfo_combined['num_of_prev_attempts'].median())
+    StudentInfo_combined['studied_credits'] = StudentInfo_combined['studied_credits'].fillna(
+        StudentInfo_combined['studied_credits'].median())
     df_assessment_combined['date'] = df_assessment_combined['date'].fillna(df_assessment_combined['date'].median())
     StudentAssessment_combined = StudentAssessment_combined.dropna(subset=['id_assessment', 'id_student'])
 
@@ -132,11 +135,54 @@ def cleaning_data():
     Registration_combined.drop(columns=['guid_studente_id'], inplace=True)
     vle_combined.drop(columns=['id_site'], inplace=True)
 
-    df_main = StudentInfo_combined.merge(Registration_combined, on=['id_student', 'code_module', 'code_presentation'],
-                                         how='left', suffixes=('_info', '_reg'))
-    df_main = df_main.merge(StudentAssessment_combined, on=['id_student'], how='left', suffixes=('', '_studassess'))
-    df_main = df_main.merge(df_assessment_combined, on=['id_assessment_general'], how='left', suffixes=('', '_assess'))
-    df_main = df_main.merge(StudentVle_combined, on=['id_student', 'code_module', 'code_presentation'], how='left',
-                            suffixes=('', '_vle'))
+    print(StudentInfo_combined.shape)
+    print(Registration_combined.shape)
+    print(StudentVle_combined.shape)
+    print(StudentAssessment_combined.shape)
+
+    # df_main = StudentInfo_combined.merge(Registration_combined, on=['id_student', 'code_module', 'code_presentation'], how='left', suffixes=('_info', '_reg'))
+    # df_main = df_main.merge(StudentAssessment_combined, on=['id_student'], how='left', suffixes=('', '_studassess'))
+    # df_main = df_main.merge(df_assessment_combined, on=['id_assessment_general'], how='left', suffixes=('', '_assess'))
+    student_vle_agg = StudentVle_combined.groupby(
+        ['id_student', 'code_module', 'code_presentation']
+    ).agg(
+        sum_click_total=('sum_click', 'sum'),
+        count_vle_days=('date', 'nunique')
+    ).reset_index()
+    # df_main = df_main.merge(StudentVle_combined, on=['id_student', 'code_module', 'code_presentation'], how='left', suffixes=('', '_vle'))
+
+    student_assess_agg = StudentAssessment_combined.groupby('id_student').agg(
+        mean_score=('score', 'mean'),
+        num_assessments=('id_assessment_general', 'nunique')
+    ).reset_index()
+
+    df_main = StudentInfo_combined.merge(
+        Registration_combined,
+        on=['id_student', 'code_module', 'code_presentation'],
+        how='left',
+        suffixes=('_info', '_reg')
+    )
+
+    # Merge with StudentAssessment_combined first
+    df_main = df_main.merge(
+        StudentAssessment_combined,
+        on='id_student',
+        how='left'
+    )
+
+    # Then merge with df_assessment_combined
+    df_main = df_main.merge(
+        df_assessment_combined.drop_duplicates(subset=['id_assessment_general']),
+        on='id_assessment_general',
+        how='left'
+    )
+
+    # Finally merge with aggregated student_vle_agg
+    df_main = df_main.merge(
+        student_vle_agg,
+        left_on=['id_student', 'code_module_x', 'code_presentation_x'],
+        right_on=['id_student', 'code_module', 'code_presentation'],
+        how='left'
+    )
 
     df_main.to_csv('./data/OULADX.csv', index=False)
