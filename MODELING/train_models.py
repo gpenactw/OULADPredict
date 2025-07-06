@@ -7,7 +7,12 @@ from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.cluster import KMeans
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import (
+    accuracy_score,
+    roc_auc_score,
+    mean_squared_error,
+    r2_score,
+)
 
 class Modeling:
     def __init__(self, path="data/OULADX.csv"):
@@ -156,8 +161,10 @@ class Modeling:
         recall = TP / (TP + FN) if (TP + FN) else 0
         f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0
 
-        # MSE
         mse = mean_squared_error(y_test, y_pred)
+        accuracy = accuracy_score(y_test, y_pred)
+        roc_auc = roc_auc_score(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
 
         # Exportar métricas a CSV
         metrics = {
@@ -168,6 +175,9 @@ class Modeling:
             "Precision": precision,
             "Recall": recall,
             "F1_score": f1,
+            "Accuracy": accuracy,
+            "ROC_AUC": roc_auc,
+            "R2": r2,
             "MSE": mse,
         }
         metrics_df = pd.DataFrame([metrics])
