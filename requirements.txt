@@ -1,0 +1,7 @@
+pandas
+scikit-learn
+openpyxl
+tqdm
+matplotlib
+seaborn
+requests
