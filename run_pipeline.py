@@ -1,5 +1,6 @@
 from ETL.etl_process import ETLProcess
 from EDA.eda_analysis import EDAAnalysis
+from MODELING.train_models import Modeling
 
 def run_etl_process():
     print("\n¿Está seguro que desea ejecutar el ETL? Esto puede tomar varios minutos.")
@@ -11,13 +12,15 @@ def run_etl_process():
     else:
         print("ETL cancelado.")
 
-
 def run_eda():
     print("\nEjecutando Análisis Exploratorio de Datos (EDA)...")
     eda = EDAAnalysis()
     eda.run()
 
-
+def run_modeling():
+    print("\nEjecutando Modelo (algoritmos supervisado)...")
+    model = Modeling()
+    model.run("all", True)
 
 def main():
     print("\n" + "="*50)
@@ -28,6 +31,7 @@ def main():
         print("\n=== MENÚ PRINCIPAL ===")
         print("1. Ejecutar ETL")
         print("2. Ejecutar EDA (Análisis Exploratorio)")
+        print("3. Ejecutar MODELING (Entrenamiento)")
         print("0. Salir")
 
         choice = input("\nSelecciona una opción: ")
@@ -36,6 +40,8 @@ def main():
             run_etl_process()
         elif choice == "2":
             run_eda()
+        elif choice == "3":
+            run_modeling()
         elif choice == "0":
             print("\n¡Hasta luego!")
             break
