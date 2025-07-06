@@ -1,6 +1,7 @@
 from ETL.etl_process import ETLProcess
 from EDA.eda_analysis import EDAAnalysis
 from MODELING.train_models import Modeling
+from EDA.hipotesis import ModelosOULAD
 
 def run_etl_process():
     print("\n¿Está seguro que desea ejecutar el ETL? Esto puede tomar varios minutos.")
@@ -22,6 +23,11 @@ def run_modeling():
     model = Modeling()
     model.run("all", True)
 
+def run_hipotesis():
+    print("¡Ejecutando pruebas de hipótesis y regresiones simples sobre OULAD!")
+    h = ModelosOULAD()
+    h.run()
+
 def main():
     print("\n" + "="*50)
     print(" Sistema OULAD - Aprendizaje Supervisado")
@@ -31,7 +37,8 @@ def main():
         print("\n=== MENÚ PRINCIPAL ===")
         print("1. Ejecutar ETL")
         print("2. Ejecutar EDA (Análisis Exploratorio)")
-        print("3. Ejecutar MODELING (Entrenamiento)")
+        print("3. Ejecutar Hipótesis")
+        print("4. Ejecutar MODELING (Entrenamiento)")
         print("0. Salir")
 
         choice = input("\nSelecciona una opción: ")
@@ -41,6 +48,8 @@ def main():
         elif choice == "2":
             run_eda()
         elif choice == "3":
+            run_hipotesis()
+        elif choice == "4":
             run_modeling()
         elif choice == "0":
             print("\n¡Hasta luego!")

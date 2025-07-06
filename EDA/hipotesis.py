@@ -5,6 +5,7 @@ from scipy import stats
 class HipotesisOULAD:
     def __init__(self, df):
         self.df = df.copy()
+        self.df.rename(columns={"sum_click_total": "sum_click"}, inplace=True)
 
     def chi_square_education_vs_result(self):
         print("\nEjecutando Chi-cuadrado: 'highest_education' vs 'final_result'")
@@ -65,8 +66,16 @@ class HipotesisOULAD:
         print(f"Coeficiente (sum_click): {coefs:.4f}, Intercepto: {intercept:.4f}")
 
 class ModelosOULAD:
-    def __init__(self, df):
-        self.df = df.copy()
+    def __init__(self, path: str = "data/OULADX.csv", df: pd.DataFrame = None):
+        if df is not None:
+            self.df = df.copy()
+        elif path is not None:
+            csv = pd.read_csv(path, low_memory=False)
+            self.df = csv.copy()
+        else:
+            raise ValueError("Debe proporcionar una ruta de archivo o un DataFrame.")
+
+        self.df.rename(columns={"sum_click_total": "sum_click"}, inplace=True)
 
     def regresion_lineal_simple(self, x_col, y_col):
         print(f"\nRegresión lineal simple: '{y_col}' vs '{x_col}'")
@@ -78,21 +87,19 @@ class ModelosOULAD:
         print(f"R^2: {r_value**2:.4f}, p-valor: {p_value:.4f}")
         print(f"Error estándar: {std_err:.4f}")
 
-if __name__ == "__main__":
-    print("¡Ejecutando pruebas de hipótesis y regresiones simples sobre OULAD!")
-    path = "data/OULADX.csv"
-    df = pd.read_csv(path)
-    print(f"Datos cargados: {df.shape}")
 
-    print("\n=== PRUEBAS DE HIPÓTESIS ===")
-    pruebas = HipotesisOULAD(df)
-    pruebas.chi_square_education_vs_result()
-    pruebas.compare_studied_credits()
-    pruebas.correlacion_clicks_vs_score()
-    pruebas.wilcoxon_simulado()
-    pruebas.logistic_regression_clicks_vs_pass_simple()
+    def run(self):
+        print(f"Datos cargados: {self.df.shape}")
 
-    print("\n=== REGRESIONES SIMPLES ===")
-    modelos = ModelosOULAD(df)
-    modelos.regresion_lineal_simple('studied_credits', 'score')
-    modelos.regresion_lineal_simple('sum_click', 'score')
+        print("\n=== PRUEBAS DE HIPÓTESIS ===")
+        pruebas = HipotesisOULAD(self.df)
+        pruebas.chi_square_education_vs_result()
+        pruebas.compare_studied_credits()
+        pruebas.correlacion_clicks_vs_score()
+        pruebas.wilcoxon_simulado()
+        pruebas.logistic_regression_clicks_vs_pass_simple()
+
+        print("\n=== REGRESIONES SIMPLES ===")
+        modelos = ModelosOULAD(df=self.df)
+        modelos.regresion_lineal_simple('studied_credits', 'score')
+        modelos.regresion_lineal_simple('sum_click', 'score')
